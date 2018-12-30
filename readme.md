@@ -116,7 +116,7 @@ if random_seed:
     random.seed(random_seed)
 
 ## We define how many users here
-number_of_new_users = 1000
+number_of_new_users = 2000
 
 
 existing_users = [] # Later on, we can add users to our list by supplying it to the generate_userlist function
@@ -125,7 +125,7 @@ user_lists = generate_userlist(number_of_new_users, existing_users)
 print(len(user_lists), user_lists[:5])
 ```
 
-    1000 ['merchant', 'buyer', 'buyer', 'buyer', 'merchant']
+    2000 ['merchant', 'buyer', 'buyer', 'buyer', 'merchant']
 
 
 # Generating Logs For Day 1
@@ -144,9 +144,9 @@ day1_logs = generate_logs(user_lists, start_time)
 print(len(day1_logs), 'logs event generated for', len(user_lists), 'users')
 ```
 
-    19576 logs event generated for 1000 users
-    CPU times: user 2.08 s, sys: 16.3 ms, total: 2.1 s
-    Wall time: 2.11 s
+    44854 logs event generated for 2000 users
+    CPU times: user 8.58 s, sys: 87.7 ms, total: 8.67 s
+    Wall time: 8.83 s
 
 
 ## Transforming the logs in a pandas dataframe
@@ -173,19 +173,19 @@ day1_data = transform_logs_to_pandas(day1_logs)
 print(day1_data.loc[(day1_data['path'] == 'login') & (day1_data['status'] == 'fail')].head())
 ```
 
-                         time         user   path status uidx  realtype prev_path  \
-    39    2019-01-01 00:05:50  merchant898  login   fail  898  merchant             
-    1091  2019-01-01 02:04:15     buyer306  login   fail  306     buyer             
-    1384  2019-01-01 02:30:16     buyer353  login   fail  353     buyer             
-    1388  2019-01-01 02:30:38  attacker725  login   fail  725  attacker             
-    1389  2019-01-01 02:30:39  attacker725  login   fail  725  attacker     login   
+                         time           user   path status  uidx   realtype  \
+    466   2019-01-01 00:41:30  fraudster1829  login   fail  1829  fraudster   
+    1035  2019-01-01 01:18:25   merchant1112  login   fail  1112   merchant   
+    1227  2019-01-01 01:31:22       buyer413  login   fail   413      buyer   
+    1291  2019-01-01 01:35:26      buyer1754  login   fail  1754      buyer   
+    2177  2019-01-01 02:20:18       buyer609  login   fail   609      buyer   
     
-         prev_status  
-    39                
-    1091              
-    1384              
-    1388              
-    1389        fail  
+         prev_path prev_status  
+    466                         
+    1035                        
+    1227                        
+    1291                        
+    2177                        
 
 
 The following cell generates the transition surprisal lookup table used to score each actions taken by the users.
@@ -268,7 +268,10 @@ get_transition_surprisal('buy_item', 'login', transition_surprisal, day1_data)
 
 
 
-    {'fail': 0, 'fsurprisal': 10.321928094887362, 'ssurprisal': 7.0, 'success': 10}
+    {'fail': 0,
+     'fsurprisal': 11.266786540694902,
+     'ssurprisal': 7.56634682255381,
+     'success': 13}
 
 
 
@@ -301,8 +304,8 @@ print(user_transition_score['fraudster96'])
 print(user_transition_score['buyer402'])
 ```
 
-    {'login': 5.162147650850593, 'view_item': 33.24141988768278, 'sell_item': 0, 'buy_item': 49.60964047443681, 'end': 9.962896005337262, 'logout': 0, 'view_profile': 4.857980995127573, 'update_address': 5.169925001442313, 'password_reset': 0, 'comment': 0, 'home': 0, 'bank_modify': 0, 'payment_modify': 0, 'update_email': 0}
-    {'login': 5.162147650850593, 'view_item': 25.5340607556019, 'sell_item': 0, 'buy_item': 9.321928094887362, 'end': 9.962896005337262, 'logout': 9.271463027904375, 'view_profile': 0, 'update_address': 0, 'password_reset': 0, 'comment': 0, 'home': 0, 'bank_modify': 0, 'payment_modify': 0, 'update_email': 0}
+    {'login': 5.004031754019051, 'view_item': 43.01743977398506, 'sell_item': 0, 'buy_item': 29.630434620642397, 'logout': 10.26912667914942, 'home': 0, 'payment_modify': 0, 'view_profile': 11.715961990255144, 'end': 10.96072599483906, 'update_address': 4.08746284125034, 'comment': 0, 'password_reset': 0, 'bank_modify': 0, 'update_email': 0}
+    {'login': 5.004031754019051, 'view_item': 37.40227139284127, 'sell_item': 0, 'buy_item': 8.681824039973746, 'logout': 10.26912667914942, 'home': 0, 'payment_modify': 0, 'view_profile': 0, 'end': 10.96072599483906, 'update_address': 0, 'comment': 0, 'password_reset': 0, 'bank_modify': 0, 'update_email': 0}
 
 
 If we go through the logs of the day, can we identify outliers?
@@ -343,22 +346,34 @@ df_cumulative_score.loc[df_cumulative_score['z'] >= 2].sort_values(by=['surprisa
   </thead>
   <tbody>
     <tr>
-      <th>721</th>
-      <td>bot672</td>
-      <td>32110.895325</td>
-      <td>30.442508</td>
-    </tr>
-    <tr>
-      <th>684</th>
-      <td>bot900</td>
-      <td>8122.097174</td>
-      <td>7.589254</td>
-    </tr>
-    <tr>
-      <th>275</th>
+      <th>561</th>
       <td>bot776</td>
-      <td>2922.642534</td>
-      <td>2.635923</td>
+      <td>56075.901968</td>
+      <td>36.461053</td>
+    </tr>
+    <tr>
+      <th>425</th>
+      <td>bot1705</td>
+      <td>38118.593485</td>
+      <td>24.748691</td>
+    </tr>
+    <tr>
+      <th>1365</th>
+      <td>bot900</td>
+      <td>7981.984783</td>
+      <td>5.092579</td>
+    </tr>
+    <tr>
+      <th>1438</th>
+      <td>bot672</td>
+      <td>5668.535410</td>
+      <td>3.583669</td>
+    </tr>
+    <tr>
+      <th>229</th>
+      <td>bot1946</td>
+      <td>4831.875321</td>
+      <td>3.037971</td>
     </tr>
   </tbody>
 </table>
@@ -368,7 +383,7 @@ df_cumulative_score.loc[df_cumulative_score['z'] >= 2].sort_values(by=['surprisa
 
 
 ```python
-df_cumulative_score.sort_values(by=['surprisal'], ascending=False).tail(15)
+df_cumulative_score.sort_values(by=['surprisal'], ascending=False).tail()
 ```
 
 
@@ -386,94 +401,34 @@ df_cumulative_score.sort_values(by=['surprisal'], ascending=False).tail(15)
   </thead>
   <tbody>
     <tr>
-      <th>800</th>
-      <td>merchant722</td>
-      <td>37.714803</td>
-      <td>-0.112442</td>
-    </tr>
-    <tr>
-      <th>761</th>
-      <td>merchant102</td>
-      <td>37.714803</td>
-      <td>-0.112442</td>
-    </tr>
-    <tr>
-      <th>756</th>
-      <td>merchant121</td>
-      <td>37.714803</td>
-      <td>-0.112442</td>
-    </tr>
-    <tr>
-      <th>749</th>
-      <td>merchant780</td>
-      <td>37.714803</td>
-      <td>-0.112442</td>
-    </tr>
-    <tr>
-      <th>157</th>
-      <td>merchant973</td>
-      <td>35.658602</td>
-      <td>-0.114401</td>
-    </tr>
-    <tr>
-      <th>102</th>
-      <td>merchant221</td>
-      <td>35.658602</td>
-      <td>-0.114401</td>
-    </tr>
-    <tr>
-      <th>924</th>
-      <td>merchant376</td>
-      <td>35.658602</td>
-      <td>-0.114401</td>
-    </tr>
-    <tr>
-      <th>52</th>
-      <td>buyer416</td>
-      <td>34.718435</td>
-      <td>-0.115297</td>
-    </tr>
-    <tr>
-      <th>310</th>
-      <td>buyer608</td>
-      <td>34.718435</td>
-      <td>-0.115297</td>
-    </tr>
-    <tr>
-      <th>303</th>
-      <td>buyer663</td>
-      <td>34.718435</td>
-      <td>-0.115297</td>
-    </tr>
-    <tr>
-      <th>996</th>
-      <td>buyer324</td>
-      <td>34.718435</td>
-      <td>-0.115297</td>
-    </tr>
-    <tr>
-      <th>998</th>
+      <th>1996</th>
       <td>buyer528</td>
-      <td>24.753975</td>
-      <td>-0.124789</td>
+      <td>19.945630</td>
+      <td>-0.100532</td>
     </tr>
     <tr>
-      <th>807</th>
-      <td>fraudster255</td>
-      <td>24.396507</td>
-      <td>-0.125130</td>
-    </tr>
-    <tr>
-      <th>97</th>
-      <td>attacker725</td>
-      <td>18.993460</td>
-      <td>-0.130277</td>
-    </tr>
-    <tr>
-      <th>999</th>
+      <th>1998</th>
       <td>merchant238</td>
-      <td>5.162148</td>
-      <td>-0.143454</td>
+      <td>19.945630</td>
+      <td>-0.100532</td>
+    </tr>
+    <tr>
+      <th>914</th>
+      <td>buyer414</td>
+      <td>19.424189</td>
+      <td>-0.100872</td>
+    </tr>
+    <tr>
+      <th>958</th>
+      <td>attacker520</td>
+      <td>15.964758</td>
+      <td>-0.103128</td>
+    </tr>
+    <tr>
+      <th>569</th>
+      <td>merchant449</td>
+      <td>10.960726</td>
+      <td>-0.106392</td>
     </tr>
   </tbody>
 </table>
@@ -488,48 +443,39 @@ np.seterr(divide='ignore', invalid='ignore', over='ignore')
 if random_seed:
     np.random.seed(random_seed)
 
-for l in range(2,8):
+maxlimit = 1
+maxtp = 0
+minfp = 1
+best_flat_lookup = {}
+
+for l in range(2, 10):
     flat_status, flat_lookup = cheat_calculate_hit_rate(day1_data, user_transition_score, l)
-    print('limit',l)
-    print('count', True, flat_status[True])
-    print('count', False, flat_status[False])
+    if maxtp <= flat_lookup[True][True] or minfp >= flat_lookup[False][True]:
+        maxtp = flat_lookup[True][True]
+        minfp = flat_lookup[False][True]
+        maxlimit = l
+        print('best', l, flat_lookup, maxtp, minfp, maxlimit)
+    
 
-    print('percent', True, flat_lookup[True])
-    print('percent', False, flat_lookup[False])
+flat_status, flat_lookup = cheat_calculate_hit_rate(day1_data, user_transition_score, maxlimit)
 
-flat_status, flat_lookup = cheat_calculate_hit_rate(day1_data, user_transition_score, 6)
+print('limit', maxlimit)
+print('count', True, flat_status[True])
+print('count', False, flat_status[False])
+
+print('percent', True, flat_lookup[True])
+print('percent', False, flat_lookup[False])
+
 ```
 
-    limit 2
-    count True {True: 112, False: 0}
-    count False {True: 147, False: 966}
-    percent True {True: 1.0, False: 0.1320754716981132}
-    percent False {True: 0.0, False: 0.8679245283018868}
-    limit 3
-    count True {True: 113, False: 0}
-    count False {True: 146, False: 966}
-    percent True {True: 1.0, False: 0.13129496402877697}
-    percent False {True: 0.0, False: 0.8687050359712231}
-    limit 4
-    count True {True: 109, False: 0}
-    count False {True: 150, False: 966}
-    percent True {True: 1.0, False: 0.13440860215053763}
-    percent False {True: 0.0, False: 0.8655913978494624}
-    limit 5
-    count True {True: 110, False: 2}
-    count False {True: 149, False: 964}
-    percent True {True: 0.9821428571428571, False: 0.13387241689128482}
-    percent False {True: 0.017857142857142856, False: 0.8661275831087152}
-    limit 6
-    count True {True: 135, False: 4}
-    count False {True: 124, False: 962}
-    percent True {True: 0.9712230215827338, False: 0.1141804788213628}
-    percent False {True: 0.02877697841726619, False: 0.8858195211786372}
-    limit 7
-    count True {True: 119, False: 4}
-    count False {True: 140, False: 962}
-    percent True {True: 0.967479674796748, False: 0.12704174228675136}
-    percent False {True: 0.032520325203252036, False: 0.8729582577132486}
+    best 2 {True: {True: 0.8681318681318682, False: 0.10718358038768529}, False: {True: 0.13186813186813187, False: 0.8928164196123147}} 0.8681318681318682 0.13186813186813187 2
+    best 3 {True: {True: 0.8681318681318682, False: 0.10718358038768529}, False: {True: 0.13186813186813187, False: 0.8928164196123147}} 0.8681318681318682 0.13186813186813187 3
+    best 8 {True: {True: 0.875, False: 0.10206422018348624}, False: {True: 0.125, False: 0.8979357798165137}} 0.875 0.125 8
+    limit 8
+    count True {True: 146, False: 24}
+    count False {True: 200, False: 1566}
+    percent True {True: 0.8588235294117647, False: 0.11325028312570781}
+    percent False {True: 0.1411764705882353, False: 0.8867497168742922}
 
 
 Can we cluster users together?
@@ -584,17 +530,17 @@ def compare_profiles(profile1, profile2, limit = 7):
 
 print(user_transition_score['fraudster96'])
 print(user_transition_score['buyer402'])
-compare_profiles(user_transition_score['fraudster96'], user_transition_score['buyer402'], 6)
+compare_profiles(user_transition_score['fraudster96'], user_transition_score['buyer402'], maxlimit)
 ```
 
-    {'login': 5.162147650850593, 'view_item': 33.24141988768278, 'sell_item': 0, 'buy_item': 49.60964047443681, 'end': 9.962896005337262, 'logout': 0, 'view_profile': 4.857980995127573, 'update_address': 5.169925001442313, 'password_reset': 0, 'comment': 0, 'home': 0, 'bank_modify': 0, 'payment_modify': 0, 'update_email': 0}
-    {'login': 5.162147650850593, 'view_item': 25.5340607556019, 'sell_item': 0, 'buy_item': 9.321928094887362, 'end': 9.962896005337262, 'logout': 9.271463027904375, 'view_profile': 0, 'update_address': 0, 'password_reset': 0, 'comment': 0, 'home': 0, 'bank_modify': 0, 'payment_modify': 0, 'update_email': 0}
+    {'login': 5.004031754019051, 'view_item': 43.01743977398506, 'sell_item': 0, 'buy_item': 29.630434620642397, 'logout': 10.26912667914942, 'home': 0, 'payment_modify': 0, 'view_profile': 11.715961990255144, 'end': 10.96072599483906, 'update_address': 4.08746284125034, 'comment': 0, 'password_reset': 0, 'bank_modify': 0, 'update_email': 0}
+    {'login': 5.004031754019051, 'view_item': 37.40227139284127, 'sell_item': 0, 'buy_item': 8.681824039973746, 'logout': 10.26912667914942, 'home': 0, 'payment_modify': 0, 'view_profile': 0, 'end': 10.96072599483906, 'update_address': 0, 'comment': 0, 'password_reset': 0, 'bank_modify': 0, 'update_email': 0}
 
 
 
 
 
-    {'dklp': 10.075853338434619, 'dklq': 8.9603374132886042, 'test': False}
+    {'dklp': 15.854436058599713, 'dklq': -0.24392176319022993, 'test': False}
 
 
 
@@ -615,7 +561,7 @@ def remove_from_classification(candidate_name, behaviour_type_table):
     return cleaneds           
             
 
-def classify_candidates(candidate_name, behaviour_type_table, score):
+def classify_candidates(candidate_name, behaviour_type_table, score, limit = 7):
     potential_matching_type = {}
     passing_score = 0.85
     sample_size = 20
@@ -627,7 +573,7 @@ def classify_candidates(candidate_name, behaviour_type_table, score):
         post = 0.1 # this is the prior
         for idx in range(len(be_samples)):
             y = be_samples[idx]
-            result = compare_profiles(score[candidate_name], score[y], 6)
+            result = compare_profiles(score[candidate_name], score[y], limit)
             post = update_probability(post, flat_lookup, result['test'])
             
         if post >= passing_score * (min(small_size_adjustment,max(1,len(be_samples)))/small_size_adjustment):
@@ -650,13 +596,13 @@ def add_candidate_to_behaviour_type(candidate_name, matching_class, behaviour_ty
         
     return candidate_name
     
-def classify_users_in_list(unclassified_user_lists, behaviour_type_table, score):
+def classify_users_in_list(unclassified_user_lists, behaviour_type_table, score, limit = 7):
     # select one user
     candidate_name = random.choice(unclassified_user_lists)
     if candidate_name:
         # classify user
         cleanup = remove_from_classification(candidate_name, behaviour_type_table)
-        matching_class = classify_candidates(candidate_name, behaviour_type_table, score)
+        matching_class = classify_candidates(candidate_name, behaviour_type_table, score, limit)
 
         # add the user to the proper type
         add_candidate_to_behaviour_type(candidate_name, matching_class, behaviour_type_table)
@@ -679,66 +625,76 @@ unclassified_user_lists = random.sample(list(user_transition_score.keys()), len(
 %%time
 # while there are unclassified users
 while len(unclassified_user_lists[:10]):
-    classify_users_in_list(unclassified_user_lists, behaviour_type_table, user_transition_score)
+    classify_users_in_list(unclassified_user_lists, behaviour_type_table, user_transition_score, maxlimit)
 
 for k in behaviour_type_table.keys():
     type_average = np.mean([sum(user_transition_score[x].values()) for x in behaviour_type_table[k]])
     print(k, type_average, len(behaviour_type_table[k]), cheat_lookup_all_users(behaviour_type_table[k]))
 ```
 
-    1 116.343963314 238 {'merchant': 238}
-    2 119.785949239 258 {'merchant': 258}
-    3 87.4161188643 262 {'buyer': 262}
-    4 86.5471276096 84 {'buyer': 84}
-    5 180.252641893 93 {'buyer': 93}
-    6 46.9206963748 4 {'merchant': 4}
-    7 127.567312454 29 {'buyer': 29}
-    8 101.680076675 2 {'buyer': 1, 'fraudster': 1}
-    9 5.16214765085 1 {'merchant': 1}
-    10 90.0648041663 2 {'fraudster': 2}
-    11 172.650206702 3 {'merchant': 3}
-    12 38.1590774773 6 {'buyer': 6}
-    13 144.017241892 1 {'merchant': 1}
-    14 32110.8953251 1 {'bot': 1}
-    15 270.328618975 3 {'spammer': 3}
-    16 48.9113281923 1 {'merchant': 1}
-    17 8122.09717374 1 {'bot': 1}
-    18 66.7039296268 3 {'attacker': 3}
-    19 240.675677501 1 {'merchant': 1}
-    20 81.345580945 3 {'attacker': 2, 'fraudster': 1}
-    21 2922.64253355 1 {'bot': 1}
-    22 24.7539745319 1 {'buyer': 1}
-    23 176.545786547 1 {'buyer': 1}
-    24 144.467124465 1 {'merchant': 1}
-    CPU times: user 14 s, sys: 55.1 ms, total: 14.1 s
-    Wall time: 14.2 s
+    1 83.0782877089 188 {'buyer': 188}
+    2 90.1513520804 519 {'buyer': 519}
+    3 130.977119884 502 {'merchant': 502}
+    4 127.623825961 494 {'merchant': 494}
+    5 165.965142825 178 {'buyer': 178}
+    6 156.153730885 53 {'buyer': 53}
+    7 50.320694373 2 {'fraudster': 2}
+    8 21.817352416 3 {'buyer': 2, 'merchant': 1}
+    9 226.493136815 4 {'spammer': 4}
+    10 40.5556503097 9 {'attacker': 6, 'buyer': 1, 'fraudster': 2}
+    11 43.5422474766 5 {'merchant': 5}
+    12 86.2656941198 2 {'buyer': 2}
+    13 26.233884428 1 {'fraudster': 1}
+    14 46.2312074636 5 {'merchant': 5}
+    15 27.2315442896 2 {'buyer': 2}
+    16 140.976558557 2 {'fraudster': 1, 'buyer': 1}
+    17 65.8488134826 1 {'merchant': 1}
+    18 213.812498724 3 {'merchant': 3}
+    19 4831.8753215 1 {'bot': 1}
+    20 10.9607259948 1 {'merchant': 1}
+    21 190.084814964 1 {'attacker': 1}
+    22 5668.53541029 1 {'bot': 1}
+    23 39.9211269787 4 {'buyer': 4}
+    24 131.819810554 2 {'spammer': 2}
+    25 169.848157892 1 {'buyer': 1}
+    26 7981.98478332 1 {'bot': 1}
+    27 127.794035183 2 {'buyer': 2}
+    28 38118.5934849 1 {'bot': 1}
+    29 221.282191908 2 {'buyer': 2}
+    30 244.669084138 1 {'buyer': 1}
+    31 155.567927532 3 {'merchant': 3}
+    32 230.616114245 2 {'merchant': 2}
+    33 246.91864566 2 {'buyer': 2}
+    34 56075.9019678 1 {'bot': 1}
+    CPU times: user 31.9 s, sys: 146 ms, total: 32 s
+    Wall time: 32.6 s
 
 
 
 ```python
-day1_data.loc[day1_data['user'].isin(behaviour_type_table[10])]['user'].unique()
+day1_data.loc[day1_data['user'].isin(behaviour_type_table[24])]['user'].unique()
 ```
 
 
 
 
-    array(['fraudster96', 'fraudster86'], dtype=object)
+    array(['spammer150', 'spammer1935'], dtype=object)
 
 
 
 
 ```python
-a = 'fraudster96'
-b = 'fraudster86'
+a = 'spammer150'
+b = 'spammer1935'
 
 print(user_transition_score[a])
 print(user_transition_score[b])
 print('compare test', compare_profiles(user_transition_score[a], user_transition_score[b],6))
 ```
 
-    {'login': 5.162147650850593, 'view_item': 33.24141988768278, 'sell_item': 0, 'buy_item': 49.60964047443681, 'end': 9.962896005337262, 'logout': 0, 'view_profile': 4.857980995127573, 'update_address': 5.169925001442313, 'password_reset': 0, 'comment': 0, 'home': 0, 'bank_modify': 0, 'payment_modify': 0, 'update_email': 0}
-    {'login': 5.162147650850593, 'view_item': 19.591826881094896, 'sell_item': 0, 'buy_item': 29.965784284662085, 'end': 9.962896005337262, 'logout': 0, 'view_profile': 4.857980995127573, 'update_address': 0, 'password_reset': 0, 'comment': 0, 'home': 0, 'bank_modify': 0, 'payment_modify': 2.584962500721156, 'update_email': 0}
-    compare test {'test': True, 'dklp': 4.7391152106918337, 'dklq': 2.4413534715591183}
+    {'login': 5.004031754019051, 'view_item': 127.05185860243785, 'sell_item': 0, 'buy_item': 0, 'logout': 0, 'home': 0, 'payment_modify': 0, 'view_profile': 0, 'end': 10.96072599483906, 'update_address': 0, 'comment': 58.15837321097585, 'password_reset': 0, 'bank_modify': 0, 'update_email': 0}
+    {'login': 5.004031754019051, 'view_item': 29.88319573653219, 'sell_item': 0, 'buy_item': 0, 'logout': 0, 'home': 0, 'payment_modify': 0, 'view_profile': 0, 'end': 10.96072599483906, 'update_address': 0, 'comment': 16.616678060278815, 'password_reset': 0, 'bank_modify': 0, 'update_email': 0}
+    compare test {'test': True, 'dklp': 0.00041349357463677807, 'dklq': -1.2914255633106044e-16}
 
 
 # Day 2, Let's see if we can find something
@@ -766,9 +722,6 @@ print(len(day2_logs), 'logs events generated for', len(user_list_day2s), 'users'
 
 day2_data = transform_logs_to_pandas(day2_logs)
 ```
-
-    18877 logs events generated for 1020 users
-
 
 
 ```python
@@ -808,7 +761,7 @@ unclassified_user_lists = random.sample(list(user_transition_score_day2.keys()),
 %%time
 # while there are unclassified users
 while len(unclassified_user_lists):
-    classify_users_in_list(unclassified_user_lists, behaviour_type_table, user_transition_score_day2)
+    classify_users_in_list(unclassified_user_lists, behaviour_type_table, user_transition_score_day2, maxlimit)
 
 for k in behaviour_type_table.keys():
     type_average = np.mean([sum(user_transition_score[x].values()) for x in behaviour_type_table[k]])
