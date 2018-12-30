@@ -193,10 +193,9 @@ def generate_logs(todays_users, start_time):
 
 np.seterr(divide='ignore', invalid='ignore', over='ignore')
 
-def cheat_compare_users(user1, user2, score):
+def cheat_compare_users(user1, user2, score, limit):
     u1 = np.array(list(score[user1].values()))
     u2 = np.array(list(score[user2].values()))
-    limit = 7
 
     px = [1/np.power(2,x) for x in u1]
     qx = [1/np.power(2,x) for x in u2]
@@ -214,7 +213,7 @@ def cheat_compare_users(user1, user2, score):
     result = { 'test': t, 'real': real == test_user_type, 'dklp': dklp, 'dklq': dklq }
     return result
 
-def cheat_calculate_hit_rate(data, score):
+def cheat_calculate_hit_rate(data, score, limit = 7):
     user_types = list(data['realtype'].unique())
     flat_status = {
         True: { True: 0, False: 0 },
@@ -229,7 +228,7 @@ def cheat_calculate_hit_rate(data, score):
             for j in all_ut1[:10]:
                 np.random.shuffle(all_ut2)
                 for i in all_ut2[:10]:
-                    result = cheat_compare_users(j, i, score)
+                    result = cheat_compare_users(j, i, score, limit)
                     flat_status[result['test']][result['real']] += 1
 
     tp = flat_status[True][True]
