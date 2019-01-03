@@ -147,7 +147,7 @@ def cheat_user_lookup(name):
     else:
         return "unknown"
 
-def generate_userlist(nb_users, existing_users):
+def generate_userlist(existing_users, nb_users):
     todays_users = existing_users[:]
 
     for i in range(nb_users):
@@ -193,9 +193,22 @@ def generate_logs(todays_users, start_time):
 
 np.seterr(divide='ignore', invalid='ignore', over='ignore')
 
+def align_profiles(profile1, profile2):
+    if profile1.keys() != profile2.keys():
+        for k in profile1.keys():
+            if k not in profile2.keys():
+                profile2[k] = 0.0
+        for k in profile2.keys():
+            if k not in profile1.keys():
+                profile1[k] = 0.0
+    return np.array([value for (key, value) in sorted(profile1.items())]), np.array([value for (key, value) in sorted(profile2.items())])
+
+
+
 def cheat_compare_users(user1, user2, score, limit):
-    u1 = np.array(list(score[user1].values()))
-    u2 = np.array(list(score[user2].values()))
+    u1, u2 = align_profiles(score[user1], score[user2])
+    # u1 = np.array(list(score[user1].values()))
+    # u2 = np.array(list(score[user2].values()))
 
     px = [1/np.power(2,x) for x in u1]
     qx = [1/np.power(2,x) for x in u2]
