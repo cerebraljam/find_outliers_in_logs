@@ -896,41 +896,6 @@ def graph_user_distribution_by_behaviour_id(type_table, average_table, transitio
 
 
 ```python
-if 0: #graph debugging... ignore
-    current_behaviour_state_table = {}
-
-    for k in behaviour_group_table.keys():
-        type_average = np.mean([sum(user_transition_score[x].values()) for x in behaviour_group_table[k]])
-        current_behaviour_state_table[k] = {'type': k, 'score':type_average, 'nbmembers':len(behaviour_group_table[k]), 'behaviour': behaviour_average_table[k]}
-
-    surprisal_stats = np.array([
-        [current_behaviour_state_table[y]['behaviour'][x]/sum(current_behaviour_state_table[y]['behaviour'].values()) for x in sorted(current_behaviour_state_table[1]['behaviour'].keys())]
-        for y in list(current_behaviour_state_table.keys())# [key for (key, value) in sorted(current_behaviour_state_table.items())]
-    ])
-
-    keylists_columns = [x for x in list(current_behaviour_state_table.keys()) if current_behaviour_state_table[x]['nbmembers'] > 0]
-    path_rows = sorted(current_behaviour_state_table[keylists_columns[0]]['behaviour'].keys())
-    surprisal_values = list(current_behaviour_state_table[keylists_columns[0]]['behaviour'].values())
-    # np.array(surprisal_values) * current_behaviour_state_table[keylists_columns[0]]['nbmembers']
-
-    x = [[1,2,3,4],
-        ['a','b','c','d'],
-        [4,5,6,7]
-        ]
-    # print(np.array(surprisal_values))
-
-    #     p2 = [value for (key, value) in sorted(profile2.items())]
-    #     allkeys = [key for (key, value) in sorted(profile2.items())]
-
-    print(keylists_columns)
-#     print(path_rows)
-#     print(surprisal_stats[0])
-    # print(sorted(current_behaviour_state_table[1]['behaviour'].keys()))
-
-```
-
-
-```python
 # This cell creates an helper function that displays the distribution of actions for each group.
 # Note that the surprisal value for a single action is maxed out at 500. More than this, the graph
 # becomes useless since all normal actions squashed by the outliers
@@ -1021,7 +986,7 @@ graph_user_distribution_by_behaviour_id(behaviour_group_table, behaviour_average
 
 
 
-![png](find_outliers_in_logs_files/find_outliers_in_logs_39_1.png)
+![png](find_outliers_in_logs_files/find_outliers_in_logs_38_1.png)
 
 
 ## Graph the distribution of by action, weighted by their surprisal score
@@ -1051,7 +1016,7 @@ graph_surprisal_distribution_by_action(behaviour_group_table, behaviour_average_
 
 
 
-![png](find_outliers_in_logs_files/find_outliers_in_logs_41_1.png)
+![png](find_outliers_in_logs_files/find_outliers_in_logs_40_1.png)
 
 
 # 4.1 Investigate the behaviour groups to understand the behaviour of the members
@@ -1472,7 +1437,7 @@ graph_user_distribution_by_behaviour_id(behaviour_group_table, behaviour_average
 
 
 
-![png](find_outliers_in_logs_files/find_outliers_in_logs_55_1.png)
+![png](find_outliers_in_logs_files/find_outliers_in_logs_54_1.png)
 
 
 ## Graph the distribution of by action, weighted by their surprisal score
@@ -1490,7 +1455,7 @@ graph_surprisal_distribution_by_action(behaviour_group_table, behaviour_average_
 
 
 
-![png](find_outliers_in_logs_files/find_outliers_in_logs_57_1.png)
+![png](find_outliers_in_logs_files/find_outliers_in_logs_56_1.png)
 
 
 ## Investigate the behaviour groups to understand the behaviour of the members
