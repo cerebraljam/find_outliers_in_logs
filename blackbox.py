@@ -114,22 +114,6 @@ user_profile = {
 
 user_lookup = {}
 
-def distribution():
-    for role in user_profile:
-        for action in user_profile[role]:
-            total = 0
-            for follow in user_profile[role][action]:
-                total+= user_profile[role][action][follow]
-            if (1 > round(total, 4) and total > 0) or round(total,4) > 1:
-                print(role,action,total, 1-total)
-    return {
-        'user_distribution': user_distribution,
-        'user_velocity': user_velocity,
-        'user_start_action': user_start_action,
-        'user_profile': user_profile,
-        'user_lookup': user_lookup
-    }
-
 def cheat_lookup_all_users(list_to_lookup):
     stats = {}
 
@@ -148,6 +132,14 @@ def cheat_user_lookup(name):
         return "unknown"
 
 def generate_userlist(existing_users, nb_users):
+    for role in user_profile:
+        for action in user_profile[role]:
+            total = 0
+            for follow in user_profile[role][action]:
+                total+= user_profile[role][action][follow]
+            if (1 > round(total, 4) and total > 0) or round(total,4) > 1:
+                print(role,action,total, 1-total)
+
     todays_users = existing_users[:]
 
     for i in range(nb_users):
@@ -219,11 +211,11 @@ def cheat_compare_users(user1, user2, score, limit):
     real = user_lookup[user1]
     test_user_type = user_lookup[user2]
 
-    dklp = (qx * np.log2(p)).sum()
-    dklq = (px * np.log2(q)).sum()
+    kldp = (qx * np.log2(p)).sum()
+    kldq = (px * np.log2(q)).sum()
 
-    t = dklp < limit and dklp >= -limit and dklq < limit and dklq >= -limit
-    result = { 'test': t, 'real': real == test_user_type, 'dklp': dklp, 'dklq': dklq }
+    t = kldp < limit and kldp >= -limit and kldq < limit and kldq >= -limit
+    result = { 'test': t, 'real': real == test_user_type, 'kldp': kldp, 'kldq': kldq }
     return result
 
 def cheat_calculate_hit_rate(data, score, limit = 7):

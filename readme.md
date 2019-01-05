@@ -114,10 +114,13 @@ chrono_start = timeit.default_timer()
 %load_ext autoreload
 %autoreload 2
 
-from blackbox import distribution as user_profile_distribution
-from blackbox import generate_userlist, generate_logs, cheat_calculate_hit_rate, cheat_lookup_all_users
+from distribution_from_file import check_if_ok
 
-magic = user_profile_distribution()
+if check_if_ok() and 0: # Check if there is a real probability distribution of user actions in the notebook directory
+    from distribution_from_file import generate_userlist, generate_logs, cheat_calculate_hit_rate, cheat_lookup_all_users
+else: # For demonstration purpose, this is what will be used to generate users and logs
+    from blackbox import generate_userlist, generate_logs, cheat_calculate_hit_rate, cheat_lookup_all_users
+    
 ```
 
 # Step 0.1: Generating The User Database
@@ -129,7 +132,7 @@ Note: I often reinitializing the random seed, just to keep the testing consisten
 
 ```python
 ## Initial number of users in our system
-number_of_daily_users = 2000 # The more we add users, the longer the notebook takes to run.
+number_of_daily_users = 1000 # The more we add users, the longer the notebook takes to run.
 ```
 
 
@@ -151,8 +154,8 @@ print(len(todays_user_lists), 'users in the database.')
 print('Type of the 15 firsts:', todays_user_lists[:15])
 ```
 
-    2000 users in the database.
-    Type of the 15 firsts: ['buyer', 'merchant', 'merchant', 'buyer', 'buyer', 'buyer', 'buyer', 'buyer', 'merchant', 'merchant', 'merchant', 'merchant', 'buyer', 'buyer', 'buyer']
+    1000 users in the database.
+    Type of the 15 firsts: ['merchant', 'merchant', 'merchant', 'merchant', 'merchant', 'merchant', 'merchant', 'merchant', 'merchant', 'merchant', 'buyer', 'buyer', 'buyer', 'buyer', 'merchant']
 
 
 # Step 0.2: Generating Logs For Day 1
@@ -173,9 +176,9 @@ day1_logs = generate_logs(todays_user_lists, start_time)
 print(len(day1_logs), 'log events generated for', len(todays_user_lists), 'users')
 ```
 
-    40170 log events generated for 2000 users
-    CPU times: user 7.66 s, sys: 73.3 ms, total: 7.73 s
-    Wall time: 7.94 s
+    17125 log events generated for 1000 users
+    CPU times: user 1.32 s, sys: 12.6 ms, total: 1.33 s
+    Wall time: 1.37 s
 
 
 ## Transforming the logs in a pandas dataframe (for this notebook...)
@@ -203,12 +206,12 @@ day1_data = transform_logs_to_pandas(day1_logs)
 print(day1_data.loc[(day1_data['path'] == 'login') & (day1_data['status'] == 'fail')].head())
 ```
 
-                        time          user   path status  uidx  realtype prev_path
-    558  2019-01-01 00:46:39  merchant1316  login   fail  1316  merchant          
-    777  2019-01-01 00:59:12   attacker652  login   fail   652  attacker          
-    778  2019-01-01 00:59:15   attacker652  login   fail   652  attacker     login
-    779  2019-01-01 00:59:19   attacker652  login   fail   652  attacker     login
-    834  2019-01-01 01:03:14     buyer1472  login   fail  1472     buyer          
+                        time         user   path status uidx  realtype prev_path
+    730  2019-01-01 01:49:32  attacker300  login   fail  300  attacker          
+    731  2019-01-01 01:49:37  attacker300  login   fail  300  attacker     login
+    732  2019-01-01 01:49:41  attacker300  login   fail  300  attacker     login
+    734  2019-01-01 01:49:44  attacker300  login   fail  300  attacker     login
+    735  2019-01-01 01:49:46  attacker300  login   fail  300  attacker     login
 
 
 ## Step 1 : Generate the transition lookup table
@@ -299,10 +302,10 @@ get_transition_surprisal('buy_item', 'login', transition_surprisal, day1_data)
 
 
 
-    {'fail': 0,
-     'fsurprisal': 11.213711798105674,
-     'ssurprisal': 6.965784284662088,
-     'success': 19}
+    {'fail': 1,
+     'fsurprisal': 10.303780748177104,
+     'ssurprisal': 6.981852653289741,
+     'success': 10}
 
 
 
@@ -362,6 +365,19 @@ df_cumulative_score.loc[df_cumulative_score['z'] >= 2].sort_values(by=['surprisa
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -373,34 +389,16 @@ df_cumulative_score.loc[df_cumulative_score['z'] >= 2].sort_values(by=['surprisa
   </thead>
   <tbody>
     <tr>
-      <th>686</th>
-      <td>bot272</td>
-      <td>51550.564081</td>
-      <td>39.684129</td>
+      <th>820</th>
+      <td>bot269</td>
+      <td>25835.299997</td>
+      <td>31.331366</td>
     </tr>
     <tr>
-      <th>623</th>
-      <td>bot1295</td>
-      <td>25659.755591</td>
-      <td>19.690524</td>
-    </tr>
-    <tr>
-      <th>189</th>
-      <td>bot1323</td>
-      <td>4788.884029</td>
-      <td>3.573455</td>
-    </tr>
-    <tr>
-      <th>832</th>
-      <td>bot1292</td>
-      <td>3741.640951</td>
-      <td>2.764745</td>
-    </tr>
-    <tr>
-      <th>1867</th>
-      <td>bot321</td>
-      <td>3121.263258</td>
-      <td>2.285672</td>
+      <th>595</th>
+      <td>bot196</td>
+      <td>2205.136719</td>
+      <td>2.515226</td>
     </tr>
   </tbody>
 </table>
@@ -418,6 +416,19 @@ df_cumulative_score.sort_values(by=['surprisal'], ascending=False).tail(10)
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -429,64 +440,64 @@ df_cumulative_score.sort_values(by=['surprisal'], ascending=False).tail(10)
   </thead>
   <tbody>
     <tr>
-      <th>1996</th>
+      <th>519</th>
+      <td>buyer392</td>
+      <td>34.754297</td>
+      <td>-0.131478</td>
+    </tr>
+    <tr>
+      <th>130</th>
+      <td>buyer752</td>
+      <td>34.754297</td>
+      <td>-0.131478</td>
+    </tr>
+    <tr>
+      <th>998</th>
       <td>buyer528</td>
-      <td>16.301175</td>
-      <td>-0.112066</td>
+      <td>27.276347</td>
+      <td>-0.140597</td>
     </tr>
     <tr>
-      <th>532</th>
-      <td>fraudster152</td>
-      <td>16.046740</td>
-      <td>-0.112263</td>
+      <th>911</th>
+      <td>buyer133</td>
+      <td>25.485170</td>
+      <td>-0.142782</td>
     </tr>
     <tr>
-      <th>1623</th>
-      <td>fraudster1221</td>
-      <td>16.046740</td>
-      <td>-0.112263</td>
+      <th>720</th>
+      <td>buyer968</td>
+      <td>25.485170</td>
+      <td>-0.142782</td>
     </tr>
     <tr>
-      <th>1988</th>
-      <td>attacker1699</td>
-      <td>10.959278</td>
-      <td>-0.116191</td>
+      <th>375</th>
+      <td>fraudster434</td>
+      <td>24.450516</td>
+      <td>-0.144043</td>
     </tr>
     <tr>
-      <th>458</th>
-      <td>merchant1421</td>
-      <td>10.959278</td>
-      <td>-0.116191</td>
+      <th>389</th>
+      <td>attacker695</td>
+      <td>24.113605</td>
+      <td>-0.144454</td>
     </tr>
     <tr>
-      <th>5</th>
-      <td>buyer282</td>
-      <td>10.959278</td>
-      <td>-0.116191</td>
+      <th>506</th>
+      <td>fraudster763</td>
+      <td>19.647497</td>
+      <td>-0.149900</td>
     </tr>
     <tr>
-      <th>391</th>
-      <td>fraudster184</td>
-      <td>10.959278</td>
-      <td>-0.116191</td>
+      <th>721</th>
+      <td>attacker672</td>
+      <td>9.958553</td>
+      <td>-0.161716</td>
     </tr>
     <tr>
-      <th>1833</th>
-      <td>attacker1512</td>
-      <td>10.959278</td>
-      <td>-0.116191</td>
-    </tr>
-    <tr>
-      <th>249</th>
-      <td>buyer1712</td>
-      <td>10.959278</td>
-      <td>-0.116191</td>
-    </tr>
-    <tr>
-      <th>1997</th>
-      <td>buyer1367</td>
-      <td>5.087463</td>
-      <td>-0.120726</td>
+      <th>330</th>
+      <td>merchant204</td>
+      <td>9.958553</td>
+      <td>-0.161716</td>
     </tr>
   </tbody>
 </table>
@@ -535,13 +546,13 @@ print('percent', False, flat_lookup[False])
 
 ```
 
-    best 2 {True: {True: 0.937984496124031, False: 0.12451577199778639}, False: {True: 0.06201550387596899, False: 0.8754842280022136}} 0.937984496124031 0.12451577199778639 0.5312501340609087 2
-    best 4 {True: {True: 0.9398496240601504, False: 0.12257348863006101}, False: {True: 0.06015037593984962, False: 0.877426511369939}} 0.9398496240601504 0.12257348863006101 0.5312115563451056 4
-    limit 4
-    count True {True: 120, False: 8}
-    count False {True: 226, False: 1582}
-    percent True {True: 0.9375, False: 0.125}
-    percent False {True: 0.0625, False: 0.875}
+    best 2 {True: {True: 0.9411764705882353, False: 0.14514692787177205}, False: {True: 0.058823529411764705, False: 0.8548530721282279}} 0.9411764705882353 0.14514692787177205 0.5431616992300037 2
+    best 5 {True: {True: 0.9459459459459459, False: 0.13824057450628366}, False: {True: 0.05405405405405406, False: 0.8617594254937163}} 0.9459459459459459 0.13824057450628366 0.5420932602261148 5
+    limit 5
+    count True {True: 102, False: 6}
+    count False {True: 157, False: 960}
+    percent True {True: 0.9444444444444444, False: 0.1405550581915846}
+    percent False {True: 0.05555555555555555, False: 0.8594449418084154}
 
 
 
@@ -605,14 +616,14 @@ print(test_users[1], user_transition_score[test_users[1]])
 compare_profiles(user_transition_score[test_users[0]], user_transition_score[test_users[1]], maxlimit)
 ```
 
-    merchant857 {'login': 5.08746284125034, 'view_item': 14.71112919630353, 'comment': 0, 'buy_item': 0, 'logout': 0, 'end': 10.959277505720502, 'sell_item': 10.349281228817453, 'home': 0, 'bank_modify': 0, 'view_profile': 0, 'password_reset': 0, 'payment_modify': 0, 'update_address': 0, 'update_email': 0}
-    merchant946 {'login': 5.08746284125034, 'view_item': 129.07211050631952, 'comment': 0, 'buy_item': 0, 'logout': 0, 'end': 10.959277505720502, 'sell_item': 102.84895609839981, 'home': 0, 'bank_modify': 0, 'view_profile': 0, 'password_reset': 0, 'payment_modify': 0, 'update_address': 0, 'update_email': 0}
+    buyer658 {'login': 5.222836532480755, 'view_item': 212.82202128550387, 'sell_item': 0, 'end': 9.958552715431011, 'logout': 9.26912667914942, 'buy_item': 90.35810747600179, 'comment': 21.91134224453131, 'payment_modify': 0, 'view_profile': 0, 'update_address': 0, 'home': 0, 'update_email': 0, 'password_reset': 0, 'bank_modify': 0}
+    merchant808 {'login': 5.222836532480755, 'view_item': 129.419431170696, 'sell_item': 82.77654125732697, 'end': 9.958552715431011, 'logout': 0, 'buy_item': 0, 'comment': 0, 'payment_modify': 0, 'view_profile': 9.509775004326938, 'update_address': 0, 'home': 0, 'update_email': 3.584962500721156, 'password_reset': 0, 'bank_modify': 5.169925001442312}
 
 
 
 
 
-    {'kldp': -1.0127900003221136e-29, 'kldq': 0.0751718455254234, 'test': True}
+    {'kldp': 121.08317553795092, 'kldq': 101.02617531289042, 'test': False}
 
 
 
@@ -745,7 +756,7 @@ print(len(list(user_transition_score.keys())))
 unclassified_user_lists = random.sample(list(user_transition_score.keys()), min(len(todays_user_lists), len(list(user_transition_score.keys()))))
 ```
 
-    1999
+    1000
 
 
 The next cell is heavy to run. This is where we go through the list of unclassified users and we add them in the proper group.
@@ -759,8 +770,8 @@ while len(unclassified_user_lists):
     classify_users_in_list(unclassified_user_lists, behaviour_group_table, behaviour_average_table, user_transition_score, maxlimit)
 ```
 
-    CPU times: user 6.28 s, sys: 41 ms, total: 6.32 s
-    Wall time: 6.53 s
+    CPU times: user 1.83 s, sys: 6.71 ms, total: 1.83 s
+    Wall time: 1.86 s
 
 
 ## Cheat cell: List all behaviour groups and the number of user by their real type
@@ -777,43 +788,36 @@ for k in behaviour_group_table.keys():
         print(k, type_average, len(behaviour_group_table[k]), cheat_lookup_all_users(behaviour_group_table[k]))
 ```
 
-    0 133.81558114 528 {'merchant': 528}
-    1 89.4563711812 515 {'buyer': 515}
-    2 122.584854049 476 {'merchant': 476}
-    3 157.83356633 165 {'buyer': 165}
-    4 145.142789844 56 {'buyer': 56}
-    5 82.4124937823 201 {'buyer': 201}
-    6 17.9298542566 3 {'fraudster': 2, 'attacker': 1}
-    7 10.9592775057 6 {'attacker': 2, 'buyer': 2, 'fraudster': 1, 'merchant': 1}
-    8 25659.7555907 1 {'bot': 1}
-    9 39.0774246392 7 {'buyer': 7}
-    10 28.3358997395 2 {'buyer': 1, 'merchant': 1}
-    11 158.391936923 2 {'merchant': 2}
-    12 140.563175357 4 {'spammer': 4}
-    13 5.08746284125 1 {'buyer': 1}
-    14 31.5748267938 2 {'buyer': 2}
-    15 94.2536470715 4 {'attacker': 4}
-    16 167.587890011 3 {'fraudster': 1, 'buyer': 2}
-    17 206.475582662 1 {'merchant': 1}
-    18 168.933119571 1 {'spammer': 1}
-    19 16.3011746394 1 {'buyer': 1}
-    20 77.5364574116 1 {'buyer': 1}
-    21 228.95766815 2 {'merchant': 2}
-    22 373.794311498 1 {'spammer': 1}
-    23 190.819622188 2 {'buyer': 1, 'fraudster': 1}
-    24 111.698395602 2 {'merchant': 2}
-    25 48.4507278436 1 {'merchant': 1}
-    26 3121.26325764 1 {'bot': 1}
-    27 26.3228647522 1 {'fraudster': 1}
-    28 471.164325798 1 {'merchant': 1}
-    29 51550.5640814 1 {'bot': 1}
-    30 181.700719883 1 {'buyer': 1}
-    31 63.1502967645 1 {'buyer': 1}
-    32 168.427842172 1 {'buyer': 1}
-    33 4788.88402875 1 {'bot': 1}
-    34 183.165776658 1 {'merchant': 1}
-    35 181.943107272 1 {'buyer': 1}
-    36 3741.64095064 1 {'bot': 1}
+    0 94.81141535182864 266 {'buyer': 266}
+    1 136.747862536679 246 {'merchant': 246}
+    2 113.47378146495461 255 {'merchant': 255}
+    3 9.958552715431011 2 {'merchant': 1, 'attacker': 1}
+    4 143.91624738889433 31 {'buyer': 31}
+    5 74.33025996775966 84 {'buyer': 84}
+    6 152.34980102158679 83 {'buyer': 83}
+    7 245.64202418242516 1 {'merchant': 1}
+    8 336.5156343710499 1 {'merchant': 1}
+    9 171.36445297286514 1 {'merchant': 1}
+    10 39.369886810135235 4 {'buyer': 4}
+    11 25.48516999608887 2 {'buyer': 2}
+    12 66.6596423626266 1 {'bot': 1}
+    13 2205.136719331569 1 {'bot': 1}
+    14 187.7353117948909 1 {'attacker': 1}
+    15 49.46775690210052 2 {'buyer': 2}
+    16 33.88321517253921 4 {'fraudster': 1, 'attacker': 3}
+    17 123.40340695132522 1 {'buyer': 1}
+    18 105.65707668371624 2 {'buyer': 2}
+    19 181.3515572027227 2 {'spammer': 2}
+    20 181.53241801662364 1 {'merchant': 1}
+    21 170.7904099016609 1 {'buyer': 1}
+    22 85.78987277865463 1 {'fraudster': 1}
+    23 109.39732308949904 1 {'buyer': 1}
+    24 85.62652067808291 1 {'fraudster': 1}
+    25 47.22259221940938 1 {'merchant': 1}
+    26 25835.299997058537 1 {'bot': 1}
+    27 97.91285014282003 1 {'spammer': 1}
+    28 51.95788669781959 1 {'merchant': 1}
+    29 24.450515927061186 1 {'fraudster': 1}
 
 
 # Step 4: Analyse the behaviour groups, and lighlight which group contains outliers
@@ -943,7 +947,7 @@ graph_user_distribution_by_behaviour_id(behaviour_group_table, behaviour_average
 
 
 
-    <module 'matplotlib.pyplot' from '/Users/simon/anaconda/lib/python3.6/site-packages/matplotlib/pyplot.py'>
+    <module 'matplotlib.pyplot' from '/anaconda3/lib/python3.6/site-packages/matplotlib/pyplot.py'>
 
 
 
@@ -973,7 +977,7 @@ graph_surprisal_distribution_by_action(behaviour_group_table, behaviour_average_
 
 
 
-    <module 'matplotlib.pyplot' from '/Users/simon/anaconda/lib/python3.6/site-packages/matplotlib/pyplot.py'>
+    <module 'matplotlib.pyplot' from '/anaconda3/lib/python3.6/site-packages/matplotlib/pyplot.py'>
 
 
 
@@ -998,6 +1002,19 @@ df_investigate.groupby(['user', 'status', 'path']).size().unstack(fill_value=0)
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1017,17 +1034,17 @@ df_investigate.groupby(['user', 'status', 'path']).size().unstack(fill_value=0)
   </thead>
   <tbody>
     <tr>
-      <th rowspan="2" valign="top">bot321</th>
+      <th rowspan="2" valign="top">bot269</th>
       <th>fail</th>
       <td>0</td>
       <td>0</td>
-      <td>30</td>
+      <td>133</td>
     </tr>
     <tr>
       <th>success</th>
       <td>1</td>
       <td>1</td>
-      <td>514</td>
+      <td>4160</td>
     </tr>
   </tbody>
 </table>
@@ -1076,8 +1093,8 @@ print(len(day2_logs), 'logs events generated for', len(todays_user_lists), 'user
 day2_data = transform_logs_to_pandas(day2_logs)
 ```
 
-    Number of active users today: 2000 ['merchant', 'buyer', 'merchant', 'buyer', 'merchant']
-    36626 logs events generated for 2000 users
+    Number of active users today: 1000 ['merchant', 'merchant', 'merchant', 'buyer', 'buyer']
+    14325 logs events generated for 1000 users
 
 
 
@@ -1107,7 +1124,7 @@ len(user_transition_score_merged)
 
 
 
-    3015
+    1496
 
 
 
@@ -1132,6 +1149,19 @@ df_cumulative_score.loc[df_cumulative_score['z'] >= 2].sort_values(by=['surprisa
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1143,64 +1173,28 @@ df_cumulative_score.loc[df_cumulative_score['z'] >= 2].sort_values(by=['surprisa
   </thead>
   <tbody>
     <tr>
-      <th>2346</th>
-      <td>bot272</td>
-      <td>51550.564081</td>
-      <td>41.683575</td>
+      <th>1410</th>
+      <td>bot269</td>
+      <td>25835.299997</td>
+      <td>36.585565</td>
     </tr>
     <tr>
-      <th>2318</th>
-      <td>bot1295</td>
-      <td>25659.755591</td>
-      <td>20.679847</td>
+      <th>155</th>
+      <td>bot566</td>
+      <td>7370.101161</td>
+      <td>10.294769</td>
     </tr>
     <tr>
-      <th>204</th>
-      <td>bot583</td>
-      <td>21476.474817</td>
-      <td>17.286191</td>
+      <th>979</th>
+      <td>bot846</td>
+      <td>3475.896940</td>
+      <td>4.750191</td>
     </tr>
     <tr>
-      <th>1404</th>
-      <td>bot1919</td>
-      <td>19934.067892</td>
-      <td>16.034925</td>
-    </tr>
-    <tr>
-      <th>1357</th>
-      <td>bot1125</td>
-      <td>16706.965581</td>
-      <td>13.416962</td>
-    </tr>
-    <tr>
-      <th>1809</th>
-      <td>bot387</td>
-      <td>7947.687878</td>
-      <td>6.311062</td>
-    </tr>
-    <tr>
-      <th>1589</th>
-      <td>bot1141</td>
-      <td>6650.017108</td>
-      <td>5.258336</td>
-    </tr>
-    <tr>
-      <th>2099</th>
-      <td>bot1323</td>
-      <td>4788.884029</td>
-      <td>3.748506</td>
-    </tr>
-    <tr>
-      <th>2429</th>
-      <td>bot1292</td>
-      <td>3741.640951</td>
-      <td>2.898938</td>
-    </tr>
-    <tr>
-      <th>2941</th>
-      <td>bot321</td>
-      <td>3121.263258</td>
-      <td>2.395661</td>
+      <th>1292</th>
+      <td>bot196</td>
+      <td>2205.136719</td>
+      <td>2.940879</td>
     </tr>
   </tbody>
 </table>
@@ -1217,7 +1211,7 @@ unclassified_user_lists = random.sample(list(user_transition_score_merged.keys()
 print(len(unclassified_user_lists))
 ```
 
-    2000
+    1000
 
 
 
@@ -1229,8 +1223,8 @@ while len(unclassified_user_lists):
     classify_users_in_list(unclassified_user_lists, behaviour_group_table, behaviour_average_table, user_transition_score_merged, maxlimit)
 ```
 
-    CPU times: user 11.3 s, sys: 111 ms, total: 11.4 s
-    Wall time: 11.9 s
+    CPU times: user 3.35 s, sys: 11.9 ms, total: 3.36 s
+    Wall time: 3.49 s
 
 
 
@@ -1242,52 +1236,42 @@ for k in sorted(behaviour_group_table.keys()):
     print(k, type_average, len(behaviour_group_table[k]), cheat_lookup_all_users(behaviour_group_table[k]))
 ```
 
-    0 137.038212747 692 {'merchant': 692}
-    1 92.0019026784 408 {'buyer': 408}
-    2 120.024466698 294 {'merchant': 294}
-    3 154.026313657 212 {'buyer': 212}
-    4 137.186219547 36 {'buyer': 36}
-    5 92.0583845405 394 {'buyer': 394}
-    6 34.6424902045 6 {'fraudster': 2, 'attacker': 4}
-    7 10.9592775057 9 {'attacker': 3, 'buyer': 2, 'fraudster': 1, 'merchant': 3}
-    8 25659.7555907 1 {'bot': 1}
-    9 40.872344293 9 {'buyer': 9}
-    11 176.840289849 3 {'merchant': 3}
-    12 161.193528137 5 {'spammer': 5}
-    13 5.08746284125 2 {'buyer': 1, 'merchant': 1}
-    14 29.9569363005 4 {'buyer': 4}
-    15 95.3283777732 4 {'attacker': 4}
-    16 155.05215635 5 {'fraudster': 2, 'buyer': 3}
-    17 143.75722284 2 {'merchant': 2}
-    18 168.933119571 1 {'spammer': 1}
-    19 16.3011746394 1 {'buyer': 1}
-    20 77.5364574116 1 {'buyer': 1}
-    21 308.494259733 2 {'merchant': 2}
-    22 216.923595102 2 {'spammer': 2}
-    23 153.70212355 3 {'buyer': 2, 'fraudster': 1}
-    24 110.012629923 3 {'merchant': 3}
-    25 10.9592775057 1 {'merchant': 1}
-    26 3121.26325764 1 {'bot': 1}
-    27 26.3228647522 1 {'fraudster': 1}
-    28 57.0748136453 1 {'merchant': 1}
-    30 216.428184269 2 {'buyer': 2}
-    31 63.1502967645 1 {'buyer': 1}
-    32 168.427842172 1 {'buyer': 1}
-    33 4788.88402875 1 {'bot': 1}
-    34 183.165776658 1 {'merchant': 1}
-    35 181.943107272 1 {'buyer': 1}
-    36 3741.64095064 1 {'bot': 1}
-    37 78.0723068109 169 {'buyer': 169}
-    38 130.914991089 52 {'buyer': 52}
-    39 7947.68787846 1 {'bot': 1}
-    40 116.385079767 351 {'merchant': 351}
-    41 39.2988555519 4 {'merchant': 4}
-    42 182.112616571 1 {'buyer': 1}
-    43 51550.5640814 1 {'bot': 1}
-    44 182.162236809 1 {'merchant': 1}
-    45 21476.4748168 1 {'bot': 1}
-    46 19934.0678919 1 {'bot': 1}
-    47 16706.9655806 1 {'bot': 1}
+    0 100.98774524335987 119 {'buyer': 119}
+    1 131.6080162881746 334 {'merchant': 334}
+    2 120.58549477300663 325 {'merchant': 325}
+    3 9.958552715431011 5 {'merchant': 2, 'attacker': 3}
+    4 150.34641521654325 42 {'buyer': 42}
+    5 87.59551906846681 270 {'buyer': 270}
+    6 139.2143267506827 120 {'buyer': 120}
+    8 187.13520280322942 4 {'merchant': 4}
+    9 171.7337497992314 1 {'merchant': 1}
+    10 52.83406370371358 3 {'buyer': 3}
+    11 25.48516999608887 1 {'buyer': 1}
+    12 66.6596423626266 1 {'bot': 1}
+    14 187.7353117948909 1 {'attacker': 1}
+    15 71.65916673657047 1 {'buyer': 1}
+    16 32.32007748331661 5 {'attacker': 4, 'fraudster': 1}
+    17 179.19745587923728 2 {'buyer': 2}
+    18 112.92891767762669 2 {'buyer': 1, 'fraudster': 1}
+    19 201.2824268828862 4 {'spammer': 4}
+    20 193.9594494514037 2 {'merchant': 2}
+    21 158.0254621579579 1 {'buyer': 1}
+    22 85.78987277865463 1 {'fraudster': 1}
+    23 46.504026462210994 1 {'buyer': 1}
+    24 85.62652067808291 1 {'fraudster': 1}
+    25 40.32454711463213 3 {'merchant': 3}
+    26 25835.299997058537 1 {'bot': 1}
+    27 97.91285014282003 1 {'spammer': 1}
+    28 51.95788669781959 1 {'merchant': 1}
+    29 24.450515927061186 1 {'fraudster': 1}
+    30 200.46381289632393 1 {'buyer': 1}
+    31 40.97111741280999 2 {'merchant': 2}
+    32 79.2397662948112 65 {'buyer': 65}
+    33 2205.136719331569 1 {'bot': 1}
+    34 3475.896939683938 1 {'bot': 1}
+    35 38.44676878315585 1 {'buyer': 1}
+    36 194.79757062589294 1 {'buyer': 1}
+    37 7370.101160952414 1 {'bot': 1}
 
 
 ## Graph the behaviour groups and the count of members
@@ -1300,7 +1284,7 @@ graph_user_distribution_by_behaviour_id(behaviour_group_table, behaviour_average
 
 
 
-    <module 'matplotlib.pyplot' from '/Users/simon/anaconda/lib/python3.6/site-packages/matplotlib/pyplot.py'>
+    <module 'matplotlib.pyplot' from '/anaconda3/lib/python3.6/site-packages/matplotlib/pyplot.py'>
 
 
 
@@ -1318,7 +1302,7 @@ graph_surprisal_distribution_by_action(behaviour_group_table, behaviour_average_
 
 
 
-    <module 'matplotlib.pyplot' from '/Users/simon/anaconda/lib/python3.6/site-packages/matplotlib/pyplot.py'>
+    <module 'matplotlib.pyplot' from '/anaconda3/lib/python3.6/site-packages/matplotlib/pyplot.py'>
 
 
 
@@ -1330,7 +1314,7 @@ graph_surprisal_distribution_by_action(behaviour_group_table, behaviour_average_
 
 
 ```python
-behaviour_group_to_analyse = 39
+behaviour_group_to_analyse = 37
 
 df_investigate = day2_data.loc[day2_data['user'].isin(behaviour_group_table[behaviour_group_to_analyse])]
 df_investigate.groupby(['user', 'status', 'path']).size().unstack(fill_value=0)
@@ -1340,6 +1324,19 @@ df_investigate.groupby(['user', 'status', 'path']).size().unstack(fill_value=0)
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1359,17 +1356,17 @@ df_investigate.groupby(['user', 'status', 'path']).size().unstack(fill_value=0)
   </thead>
   <tbody>
     <tr>
-      <th rowspan="2" valign="top">bot387</th>
+      <th rowspan="2" valign="top">bot566</th>
       <th>fail</th>
       <td>0</td>
       <td>0</td>
-      <td>28</td>
+      <td>35</td>
     </tr>
     <tr>
       <th>success</th>
       <td>1</td>
       <td>1</td>
-      <td>1364</td>
+      <td>1187</td>
     </tr>
   </tbody>
 </table>
@@ -1421,8 +1418,8 @@ print(len(day3_logs), 'logs events generated for', len(todays_user_lists), 'user
 day3_data = transform_logs_to_pandas(day3_logs)
 ```
 
-    Number of active users today: 2000 ['merchant', 'merchant', 'buyer', 'buyer', 'buyer']
-    34914 logs events generated for 2000 users
+    Number of active users today: 1000 ['buyer', 'merchant', 'merchant', 'merchant', 'buyer']
+    18407 logs events generated for 1000 users
 
 
 ## 5.2: Calculating the user transition surprisal score for each users
@@ -1438,7 +1435,7 @@ print('Total number of transition scores:', len(user_transition_score_merged))
 
 ```
 
-    Total number of transition scores: 3552
+    Total number of transition scores: 1770
 
 
 
@@ -1532,14 +1529,27 @@ print('matching with behaviour group:', classify_candidates_average(candidate, b
 classify_candidate_detail(candidate, result, user_transition_score_merged)
 ```
 
-    report for buyer495. score of 231.00757652010145
-    matching with behaviour group: 3
+    report for merchant495. score of 38.863149192771495
+    matching with behaviour group: 2
 
 
 
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1571,251 +1581,209 @@ classify_candidate_detail(candidate, result, user_transition_score_merged)
       <td>-1.000000</td>
       <td>-1.000000</td>
       <td>-1.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
       <td>0.0</td>
-      <td>43.143746</td>
-      <td>8.303781</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.087463</td>
-      <td>10.276124</td>
-      <td>0.000000</td>
+      <td>5.222837</td>
       <td>0.000000</td>
       <td>0.0</td>
+      <td>0.0</td>
+      <td>10.347068</td>
+      <td>0.0</td>
       <td>0.000000</td>
-      <td>0.000000</td>
-      <td>153.237185</td>
+      <td>13.334692</td>
       <td>0.000000</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>3</td>
-      <td>-0.313816</td>
-      <td>0.428215</td>
-      <td>0.281848</td>
+      <td>2</td>
+      <td>-0.245137</td>
+      <td>0.350519</td>
+      <td>0.182956</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958453</td>
       <td>0.0</td>
-      <td>40.293834</td>
-      <td>10.850554</td>
-      <td>10.959278</td>
-      <td>0.390689</td>
-      <td>6.098043</td>
-      <td>9.957565</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
+      <td>5.682948</td>
+      <td>0.288455</td>
       <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>99.648287</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>1.970284</td>
-      <td>-0.019148</td>
-      <td>3.882386</td>
       <td>0.0</td>
-      <td>20.162354</td>
-      <td>1.760402</td>
-      <td>10.959278</td>
-      <td>0.000047</td>
-      <td>5.116970</td>
-      <td>6.456489</td>
-      <td>0.003725</td>
-      <td>0.000000</td>
+      <td>69.794401</td>
       <td>0.0</td>
       <td>0.000000</td>
+      <td>55.719095</td>
       <td>0.000000</td>
-      <td>45.159787</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>3.794519</td>
-      <td>0.060074</td>
-      <td>14.401985</td>
-      <td>0.0</td>
-      <td>37.365853</td>
-      <td>12.661244</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.087519</td>
-      <td>1.233135</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>118.797446</td>
-      <td>0.053576</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>7.992436</td>
-      <td>0.395050</td>
-      <td>64.035099</td>
+      <td>-0.018738</td>
+      <td>8.966408</td>
+      <td>80.396818</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
       <td>0.0</td>
-      <td>23.272177</td>
-      <td>0.000000</td>
-      <td>10.959278</td>
-      <td>0.390787</td>
-      <td>6.154024</td>
-      <td>9.248512</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
+      <td>5.235491</td>
+      <td>8.921256</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>62.599900</td>
       <td>0.0</td>
       <td>0.000000</td>
-      <td>0.000000</td>
-      <td>59.854262</td>
+      <td>61.840552</td>
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>10</th>
-      <td>38</td>
-      <td>10.263511</td>
-      <td>0.017950</td>
-      <td>105.339981</td>
-      <td>0.0</td>
-      <td>27.133896</td>
-      <td>11.220432</td>
-      <td>10.959278</td>
+      <th>4</th>
+      <td>9</td>
+      <td>9.958553</td>
+      <td>0.031587</td>
+      <td>99.173770</td>
       <td>0.000000</td>
-      <td>5.665715</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.0</td>
+      <td>5.222837</td>
       <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>51.735338</td>
+      <td>0.0</td>
       <td>0.000000</td>
-      <td>96.699037</td>
+      <td>114.775575</td>
       <td>0.000000</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>32</td>
-      <td>9.741091</td>
-      <td>8.322777</td>
-      <td>164.157477</td>
+      <td>28</td>
+      <td>-0.311792</td>
+      <td>13.094738</td>
+      <td>171.569364</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
       <td>0.0</td>
-      <td>25.886248</td>
-      <td>8.303781</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>10.736805</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>2.807355</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>104.376825</td>
-      <td>5.357552</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>30</td>
-      <td>-0.437201</td>
-      <td>13.300067</td>
-      <td>177.082914</td>
-      <td>0.0</td>
-      <td>43.143746</td>
-      <td>8.303781</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.087463</td>
-      <td>10.276124</td>
-      <td>0.000000</td>
+      <td>5.222837</td>
       <td>0.000000</td>
       <td>0.0</td>
-      <td>0.000000</td>
-      <td>2.584963</td>
-      <td>90.630261</td>
-      <td>10.715104</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>42</td>
-      <td>-0.077888</td>
-      <td>17.222899</td>
-      <td>296.634304</td>
       <td>0.0</td>
-      <td>25.886248</td>
-      <td>8.303781</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.087463</td>
-      <td>10.276124</td>
-      <td>0.000000</td>
-      <td>6.507795</td>
+      <td>10.347068</td>
       <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>104.376825</td>
-      <td>10.715104</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>16</td>
-      <td>6.989511</td>
-      <td>16.997562</td>
-      <td>337.770392</td>
-      <td>0.0</td>
-      <td>41.632800</td>
-      <td>0.000000</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.087463</td>
-      <td>10.276124</td>
-      <td>0.000000</td>
-      <td>3.030626</td>
-      <td>0.0</td>
-      <td>1.292481</td>
-      <td>0.646241</td>
-      <td>59.785118</td>
-      <td>12.054492</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>37</td>
-      <td>18.574749</td>
-      <td>-0.028823</td>
-      <td>345.022143</td>
-      <td>0.0</td>
-      <td>15.902968</td>
-      <td>0.000000</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.169741</td>
-      <td>0.000000</td>
-      <td>0.003322</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>35.465197</td>
-      <td>0.000000</td>
+      <td>3.584963</td>
+      <td>13.334692</td>
+      <td>9.509775</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>23</td>
-      <td>18.048348</td>
-      <td>8.130342</td>
-      <td>391.845313</td>
+      <td>25</td>
+      <td>13.334692</td>
+      <td>0.015365</td>
+      <td>177.814254</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
       <td>0.0</td>
-      <td>17.257499</td>
+      <td>5.222837</td>
       <td>0.000000</td>
-      <td>10.959278</td>
-      <td>0.000000</td>
-      <td>5.087463</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>2.807355</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.041203</td>
       <td>0.0</td>
       <td>0.000000</td>
       <td>0.000000</td>
-      <td>40.805335</td>
-      <td>5.357552</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>27</td>
+      <td>10.332045</td>
+      <td>9.267003</td>
+      <td>192.628490</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
+      <td>0.0</td>
+      <td>5.222837</td>
+      <td>9.269127</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>73.462334</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>31</td>
+      <td>13.319666</td>
+      <td>9.276548</td>
+      <td>263.467841</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
+      <td>0.0</td>
+      <td>5.222837</td>
+      <td>9.269127</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>21.694135</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7</td>
+      <td>-0.455401</td>
+      <td>18.331507</td>
+      <td>336.251542</td>
+      <td>5.169925</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>9.958553</td>
+      <td>0.0</td>
+      <td>5.222837</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>82.776541</td>
+      <td>0.0</td>
+      <td>3.584963</td>
+      <td>129.419431</td>
+      <td>9.509775</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>10</td>
+      <td>9.781859</td>
+      <td>19.703352</td>
+      <td>483.906832</td>
+      <td>0.000000</td>
+      <td>11.009703</td>
+      <td>2.282431</td>
+      <td>9.958553</td>
+      <td>0.0</td>
+      <td>6.967410</td>
+      <td>6.372525</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>12.516465</td>
+      <td>0.000000</td>
     </tr>
   </tbody>
 </table>
@@ -1838,5 +1806,5 @@ print('Complete run time: ', chrono_stop - chrono_start)
 
 ```
 
-    Complete run time:  115.2286783939926
+    Complete run time:  30.74148744199192
 
