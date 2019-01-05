@@ -3483,7 +3483,7 @@ def classify_candidate_query(candidate_name, behaviour_type_average, score, limi
             'others': potential_matching_type
         }
 
-candidate = listing_of_users[699]
+candidate = listing_of_users[0]
 result = classify_candidate_query(candidate, behaviour_average_table, user_transition_score_merged, 20)
 ```
 
@@ -3536,8 +3536,8 @@ print('matching with behaviour group:', classify_candidates_average(candidate, b
 classify_candidate_detail(candidate, result, user_transition_score_merged)
 ```
 
-    report for fraudster1286. score of 54.17083457486127
-    matching with behaviour group: 9
+    report for buyer495. score of 231.00757652010145
+    matching with behaviour group: 3
 
 
 
@@ -3576,61 +3576,250 @@ classify_candidate_detail(candidate, result, user_transition_score_merged)
       <td>-1.000000</td>
       <td>-1.000000</td>
       <td>0.0</td>
-      <td>19.905455</td>
-      <td>0.0</td>
+      <td>43.143746</td>
+      <td>8.303781</td>
       <td>10.959278</td>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>5.087463</td>
       <td>10.276124</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>2.584963</td>
       <td>0.000000</td>
-      <td>5.357552</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>9</td>
-      <td>7.508719</td>
-      <td>1.988827</td>
-      <td>60.336293</td>
-      <td>0.0</td>
-      <td>12.238834</td>
-      <td>0.0</td>
-      <td>10.959278</td>
-      <td>0.0</td>
-      <td>5.087463</td>
-      <td>10.276124</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>0.0</td>
       <td>0.000000</td>
-      <td>2.550333</td>
+      <td>0.000000</td>
+      <td>153.237185</td>
       <td>0.000000</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>14</td>
-      <td>18.219256</td>
-      <td>-0.569793</td>
-      <td>332.265944</td>
+      <td>3</td>
+      <td>-0.313816</td>
+      <td>0.428215</td>
+      <td>0.281848</td>
       <td>0.0</td>
-      <td>13.370899</td>
-      <td>0.0</td>
+      <td>40.293834</td>
+      <td>10.850554</td>
       <td>10.959278</td>
+      <td>0.390689</td>
+      <td>6.098043</td>
+      <td>9.957565</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
       <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>99.648287</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>1.970284</td>
+      <td>-0.019148</td>
+      <td>3.882386</td>
+      <td>0.0</td>
+      <td>20.162354</td>
+      <td>1.760402</td>
+      <td>10.959278</td>
+      <td>0.000047</td>
+      <td>5.116970</td>
+      <td>6.456489</td>
+      <td>0.003725</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>45.159787</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>3.794519</td>
+      <td>0.060074</td>
+      <td>14.401985</td>
+      <td>0.0</td>
+      <td>37.365853</td>
+      <td>12.661244</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>5.087519</td>
+      <td>1.233135</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>118.797446</td>
+      <td>0.053576</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>7.992436</td>
+      <td>0.395050</td>
+      <td>64.035099</td>
+      <td>0.0</td>
+      <td>23.272177</td>
+      <td>0.000000</td>
+      <td>10.959278</td>
+      <td>0.390787</td>
+      <td>6.154024</td>
+      <td>9.248512</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>59.854262</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>38</td>
+      <td>10.263511</td>
+      <td>0.017950</td>
+      <td>105.339981</td>
+      <td>0.0</td>
+      <td>27.133896</td>
+      <td>11.220432</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>5.665715</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>96.699037</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>32</td>
+      <td>9.741091</td>
+      <td>8.322777</td>
+      <td>164.157477</td>
+      <td>0.0</td>
+      <td>25.886248</td>
+      <td>8.303781</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>10.736805</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2.807355</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>104.376825</td>
+      <td>5.357552</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>30</td>
+      <td>-0.437201</td>
+      <td>13.300067</td>
+      <td>177.082914</td>
+      <td>0.0</td>
+      <td>43.143746</td>
+      <td>8.303781</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>5.087463</td>
+      <td>10.276124</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>2.584963</td>
+      <td>90.630261</td>
+      <td>10.715104</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>42</td>
+      <td>-0.077888</td>
+      <td>17.222899</td>
+      <td>296.634304</td>
+      <td>0.0</td>
+      <td>25.886248</td>
+      <td>8.303781</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>5.087463</td>
+      <td>10.276124</td>
+      <td>0.000000</td>
+      <td>6.507795</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>104.376825</td>
+      <td>10.715104</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>16</td>
+      <td>6.989511</td>
+      <td>16.997562</td>
+      <td>337.770392</td>
+      <td>0.0</td>
+      <td>41.632800</td>
+      <td>0.000000</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>5.087463</td>
+      <td>10.276124</td>
+      <td>0.000000</td>
+      <td>3.030626</td>
+      <td>0.0</td>
+      <td>1.292481</td>
+      <td>0.646241</td>
+      <td>59.785118</td>
+      <td>12.054492</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>37</td>
+      <td>18.574749</td>
+      <td>-0.028823</td>
+      <td>345.022143</td>
+      <td>0.0</td>
+      <td>15.902968</td>
+      <td>0.000000</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
+      <td>5.169741</td>
+      <td>0.000000</td>
+      <td>0.003322</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>35.465197</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>23</td>
+      <td>18.048348</td>
+      <td>8.130342</td>
+      <td>391.845313</td>
+      <td>0.0</td>
+      <td>17.257499</td>
+      <td>0.000000</td>
+      <td>10.959278</td>
+      <td>0.000000</td>
       <td>5.087463</td>
       <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.000000</td>
+      <td>2.807355</td>
       <td>0.0</td>
       <td>0.000000</td>
       <td>0.000000</td>
-      <td>0.000000</td>
+      <td>40.805335</td>
+      <td>5.357552</td>
     </tr>
   </tbody>
 </table>
